@@ -3,7 +3,6 @@ import "./dropdown.css";
 import { FaAngleDown } from "react-icons/fa";
 
 export default function Dropdown({items,brands,categories}) {
-    console.log(brands);
     return (
         <div class="dropdown pr-[30px] ">
             <div className="flex flex-row justify-center items-center">
