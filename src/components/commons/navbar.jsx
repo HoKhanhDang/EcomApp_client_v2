@@ -22,12 +22,9 @@ export default function Navbar() {
         setBrands(rs[1].data);
         setCategories(rs[0].data);
     };
-    console.log(brands);
-    console.log(categories);
     useEffect(() => {
         fetchData();
     }, []);
-
     return (
         <div class="flex flex-row justify-center items-center w-full border-y-2 h-[60px]">
             <div class="w-[400px] md:w-auto h-[30px] hidden md:flex flex-row justify-start items-center font-main font-medium">
