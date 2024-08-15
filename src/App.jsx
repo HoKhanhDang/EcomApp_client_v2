@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {
     Login,
@@ -17,13 +16,31 @@ import path from "./ultils/path";
 
 import { useDispatch } from "react-redux";
 import { fetchCategory } from "./redux/asyncActions";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, memo } from "react";
 //components
 import MoveToTop from "./components/commons/move-to-top";
 import TopNavigation from "./components/commons/top-navigation";
 import Cart from "pages/member/Cart";
 //api
 import { apiImpressions } from "apis/userApi";
+
+const MainRoutes = memo(() => {
+    return (
+        <Routes path={path.PUBLIC} element={<Public />}>
+            <Route path={path.BILL} element={<Bill />} />
+            <Route path={path.HOME} element={<Home />} />
+            <Route path={path.LOGIN} element={<Login />} />
+            <Route path={path.CONTACT} element={<Contact />} />
+            <Route path={path.PRODUCT} element={<Product />} />
+            <Route path={path.PRODUCT_DETAIL} element={<ProductDetail />} />
+            <Route path={path.REGISTER_FINAL} element={<RegisterFinal />} />
+            <Route path={path.RESET_PASSWORD} element={<ResetPassword />} />
+            <Route path={path.CART} element={<Cart />} />
+            <Route path={path.PROFILE} element={<Profile />} />
+            <Route path={path.SEARCH} element={<Search />} />
+        </Routes>
+    );
+});
 
 function App() {
     const dispatch = useDispatch();
@@ -39,10 +56,10 @@ function App() {
         impression();
         dispatch(fetchCategory());
     }, []);
-    const yScroll = useRef(0);
+    const [yScroll, setYScroll] = useState(0);
     useEffect(() => {
         const handleScroll = () => {
-            yScroll.current = window.scrollY;
+            setYScroll(window.scrollY);
         };
 
         window.addEventListener("scroll", handleScroll);
@@ -54,19 +71,7 @@ function App() {
     return (
         <div>
             {yScroll < 173 && <TopNavigation class="slide-out-top z-50" />}
-            <Routes path={path.PUBLIC} element={<Public />}>
-                <Route path={path.BILL} element={<Bill />} />
-                <Route path={path.HOME} element={<Home />} />
-                <Route path={path.LOGIN} element={<Login />} />
-                <Route path={path.CONTACT} element={<Contact />} />
-                <Route path={path.PRODUCT} element={<Product />} />
-                <Route path={path.PRODUCT_DETAIL} element={<ProductDetail />} />
-                <Route path={path.REGISTER_FINAL} element={<RegisterFinal />} />
-                <Route path={path.RESET_PASSWORD} element={<ResetPassword />} />
-                <Route path={path.CART} element={<Cart />} />
-                <Route path={path.PROFILE} element={<Profile />} />
-                <Route path={path.SEARCH} element={<Search />} />
-            </Routes>
+            <MainRoutes />
             {yScroll >= 800 && <MoveToTop />}
         </div>
     );
