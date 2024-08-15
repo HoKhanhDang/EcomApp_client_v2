@@ -296,7 +296,7 @@ export default function ShowProducts() {
                 </div>
             ) : (
                 <div className="w-full h-auto  grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {products.map((item, index) => {
+                    {products && products?.map((item, index) => {
                         return (
                             <Link
                                 to={`/${item.category}/${item._id}/${item.title}`}
