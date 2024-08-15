@@ -278,10 +278,6 @@ export default function ShowProductsSearch() {
                 </div>
                 <div className="flex flex-col justify-start items-center h-full w-full md:w-[30%]  px-5 p-3">
                     <span className=" w-full font-semibold">Sort by</span>
-                    {/* <div className=" w-[100%] h-[50px] flex flex-row justify-between items-center border p-3">
-                        <span></span>
-                        <MdKeyboardArrowDown />
-                    </div> */}
                     <Select
                         className="w-full"
                         isMulti={false}
@@ -298,7 +294,7 @@ export default function ShowProductsSearch() {
                 </div>
             ) : (
                 <div className="w-full h-auto  grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {products.map((item, index) => {
+                    {products && products?.map((item, index) => {
                         return (
                             <Link
                                 to={`/${item.category}/${item._id}/${item.title}`}
