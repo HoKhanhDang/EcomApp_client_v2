@@ -17,7 +17,7 @@ import path from "./ultils/path";
 
 import { useDispatch } from "react-redux";
 import { fetchCategory } from "./redux/asyncActions";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 //components
 import MoveToTop from "./components/commons/move-to-top";
 import TopNavigation from "./components/commons/top-navigation";
@@ -34,15 +34,15 @@ function App() {
         } catch (error) {
             console.log(error);
         }
-    }
+    };
     useEffect(() => {
         impression();
         dispatch(fetchCategory());
     }, []);
-    const [yScroll, setYScroll] = useState(0);
+    const yScroll = useRef(0);
     useEffect(() => {
         const handleScroll = () => {
-            setYScroll(window.scrollY);
+            yScroll.current = window.scrollY;
         };
 
         window.addEventListener("scroll", handleScroll);
