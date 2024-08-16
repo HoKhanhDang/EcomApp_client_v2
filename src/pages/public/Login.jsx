@@ -1,117 +1,138 @@
-import InputField from "components/elements/input-field";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import path from "ultils/path";
-import { useDispatch } from "react-redux";
-import { registerAction, login } from "../../redux/user/userSlice";
+import React, { useEffect, useState } from "react";
+//icons
 import { IoArrowBack } from "react-icons/io5";
+import { FaFacebook } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { useGoogleLogin } from "@react-oauth/google";
+import FacebookLogin from "@greatsumini/react-facebook-login";
 
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+import path from "../../ultils/path";
+import InputField from "components/elements/input-field";
+import { apiLogin } from "../../apis/userApi";
+import { login } from "../../redux/user/userSlice";
 import swal from "sweetalert";
+import axios from "../../axios";
 
-import userApi from "apis";
-const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const { register } = useParams();
-    const [isForgotPassword, setIsForgotPassword] = useState(false);
-    const [isRegister, setIsRegister] = useState(false);
-
+export default function Login() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    //state
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-    useEffect(() => {
-        if (register === "reg") {
-            setIsRegister(true);
-        }
-    }, []);
-    const registerValidation = useFormik({
-        initialValues: {
-            email: "",
-            password: "",
-            confirmPassword: "",
-            phone: "",
-            firstName: "",
-            lastName: "",
-        },
-        validationSchema: Yup.object({
-            email: Yup.string()
-                .email("Invalid email format")
-                .required("Email is required"),
-            password: Yup.string()
-                .required("Password is required")
-                .min(2, "Password must be at least 2 characters"),
-            confirmPassword: Yup.string().required(
-                "Confirm password is required"
-            ),
-            phone: Yup.string()
-                .required("Phone number is required")
-                .matches(
-                    /^\d{10,}$/,
-                    "Phone number must be at least 10 digits and contain only numbers"
-                ),
-            firstName: Yup.string().required("First name is required"),
-            lastName: Yup.string().required("Last name is required"),
-        }),
-        onSubmit: async (values) => {
-            if (values.password !== values.confirmPassword) {
-                swal(
-                    "Please try again!",
-                    "Password and confirm password are not the same!",
-                    "warning"
-                );
-                return;
-            }
-            let data = {
-                email: values.email,
-                password: values.password,
-                mobile: values.phone,
-                firstName: values.firstName,
-                lastName: values.lastName,
-            };
+    //google
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
             try {
-                const rs = await userApi.userApi.apiRegister(data);
+                console.log("Access Token:", tokenResponse);
 
-                dispatch(
-                    registerAction({
-                        data: rs.data,
-                        isLogin: true,
-                        token: rs.data.token,
-                    })
-                );
-                swal(
-                    "Register",
-                    "Please check your email to verify!",
-                    "success"
-                ).then((value) => {
-                    if (value) {
-                        setIsRegister(false);
-                    }
+                // Fetch user information from Google UserInfo API
+                const response = await axios
+                    .get(
+                        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenResponse.access_token}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${tokenResponse.access_token}`,
+                                Accept: "application/json",
+                            },
+                        }
+                    )
+                    .catch((err) => console.log(err));
+
+                console.log("User Info:", response.data);
+                const rs = await apiLogin({
+                    email: response.data.email,
+                    password: "123",
+                    type: "google",
                 });
-                setAllNull();
+                if (rs.message === "Account do not exist") {
+                    navigate(`/${path.REGISTER_OAUTH}`, {
+                        state: { email: response.data.email, type: "google" },
+                    });
+                } else {
+                    dispatch(
+                        login({
+                            data: rs.data.data,
+                            isLogin: true,
+                            token: rs.data.accessToken,
+                        })
+                    );
+                    await swal("Login", "Successfully!", "success", {
+                        timer: 2000,
+                        buttons: false,
+                    });
+                    navigate(`/${path.HOME}`);
+                }
             } catch (error) {
-                if (error) {
-                    swal("Register failed!", "Account already exists", "error");
+                if (error.response) {
+                    console.error("Error Status:", error.response.status);
+                    console.error("Error Data:", error.response.data);
+                } else {
+                    console.error("Error Message:", error.message);
                 }
             }
         },
+        onError: (error) => console.log("Login Failed:", error),
+        flow: "implicit",
+        responseType: "token",
+        scope: "openid email profile",
     });
+    //facebook
+    const onSuccess = async (response) => {
+        console.log("User Info:", response);
 
-    const setAllNull = () => {
-        setEmail("");
-        setPassword("");
-        registerValidation.resetForm({
-            values: {
-                email: "",
-                password: "",
-                confirmPassword: "",
-                phone: "",
-                firstName: "",
-                lastName: "",
-            },
-        });
+    };
+    const onFail = async (response) => {
+        console.log(response);
+    };
+    const onProfileSuccess = async (response) => {
+        try {
+            console.log("User Info:", response);
+
+            const rs = await apiLogin({
+                email: response.email,
+                password: "123",
+                type: "google",
+            });
+
+            console.log("rs", rs);
+            if (rs.message === "Account do not exist") {
+                navigate(`/${path.REGISTER_OAUTH}`, {
+                    state: { email: response.email, type: "google" },
+                });
+            } else {
+                dispatch(
+                    login({
+                        data: rs.data.data,
+                        isLogin: true,
+                        token: rs.data.accessToken,
+                    })
+                );
+                await swal("Login", "Successfully!", "success", {
+                    timer: 2000,
+                    buttons: false,
+                });
+                navigate(`/${path.HOME}`);
+            }
+        } catch (error) {
+            if (error.response) {
+                console.error("Error Status:", error.response.status);
+                console.error("Error Data:", error.response.data);
+            } else {
+                console.error("Error Message:", error.message);
+            }
+        }
+    };
+
+    const handleRegister = () => {
+        navigate(`/${path.REGISTER}`);
+    };
+    const handleForgotPassword = () => {
+        navigate(`/${path.FORGOTPASSWORD}`);
     };
 
     const handleEmailChange = (e) => {
@@ -120,37 +141,6 @@ const Login = () => {
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
     };
-
-    const handleSetIsRegister = () => {
-        setIsRegister(!isRegister);
-        setAllNull();
-    };
-    const handleSetIsForgotPassword = () => {
-        setIsForgotPassword(!isForgotPassword);
-        setAllNull();
-    };
-    const handleSubmitForgotPassword = async () => {
-        if (email === "") {
-            swal("Please fill all the fields", "Please try again!", {
-                icon: "warning",
-            });
-        } else {
-            const data = { email };
-            const rs = await userApi.userApi.apiResetPassword(data);
-
-            swal(
-                "Almost there!",
-                "Please check your email to verify!",
-                "success"
-            ).then((value) => {
-                if (value) {
-                    setIsForgotPassword(false);
-                }
-            });
-            setAllNull();
-        }
-    };
-
     const handleSubmit = async () => {
         if (email === "" || password === "") {
             swal("Please fill all the fields", "Please try again!", {
@@ -160,8 +150,9 @@ const Login = () => {
             let data = {
                 email,
                 password,
+                type: "normal",
             };
-            const rs = await userApi.userApi.apiLogin(data);
+            const rs = await apiLogin(data);
 
             const { message, success } = rs;
 
@@ -194,316 +185,122 @@ const Login = () => {
             navigate(`/${path.HOME}`);
         }
     };
-
     return (
         <div className="w-screen h-screen flex items-center justify-center">
-            <div className='fixed bottom-5 w-[300px] h-[150px] right-5 flex flex-col border border-green-500 justify-center items-center z-10 text-white'>
+            <div className=" fixed bottom-5 w-[300px] h-[150px] right-5 flex flex-col border border-green-500 justify-center items-center z-30 text-white">
                 <span>Test Account</span>
-                <span className='text-[15px]'>Email: usd96011@tccho.com </span>
-                <span className='text-[15px]'>Password: 12 </span>
+                <span className="text-[15px]">Email: usd96011@tccho.com </span>
+                <span className="text-[15px]">Password: 12 </span>
             </div>
-            {isForgotPassword ? (
-                <div className="w-full h-full relative flex justify-center items-center">
-                    <img
-                        src={require("../../assets/bg2.jpg")}
-                        alt=""
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="flex p-[30px] absolute w-[500px] h-auto bg-white rounded-[15px] flex-col justify-start items-center ">
-                        <span className="font-main font-extrabold text-[35px] ">
-                            Forgot password
+            <div className="w-full h-full z-20 flex flex-row justify-center items-center bg-blue-200">
+                <div className="flex p-[30px] z-30 w-[500px] h-[550px] bg-white md:rounded-l-[20px] flex-col justify-start items-center ">
+                    <span className="font-main font-extrabold text-[40px] ">
+                        Login
+                    </span>
+
+                    <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
+                        <span className="w-full font-main text-[15px]">
+                            Email
                         </span>
-                        <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                            <span className="w-full font-main text-[15px]">
-                                Email
+                        <InputField
+                            type={"email"}
+                            value={email}
+                            onChange={handleEmailChange}
+                            placeholder={"Enter the email"}
+                        />
+                    </div>
+                    <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
+                        <div className="flex flex-row justify-between items-center w-full">
+                            <span className="font-main text-[15px]">
+                                Password
                             </span>
-                            <InputField
-                                type={"email"}
-                                value={email}
-                                onChange={handleEmailChange}
-                                placeholder={"Enter the email"}
-                            />
-                        </div>
-                        <div className="w-full flex flex-row justify-start items-center my-1 gap-2">
-                            <button
-                                onClick={handleSetIsForgotPassword}
-                                className="bg-blue-500 hover:bg-blue-300 text-white p-3 my-1 rounded-md w-full"
+                            <span
+                                onClick={handleForgotPassword}
+                                className="font-thin text-[15px] hover:text-blue-500"
                             >
-                                Back
-                            </button>
-                            <button
-                                onClick={handleSubmitForgotPassword}
-                                className="bg-blue-500 hover:bg-blue-300 text-white p-3 my-1 rounded-md w-full"
-                            >
-                                Submit
-                            </button>
+                                Forgot your password?
+                            </span>
                         </div>
+
+                        <InputField
+                            type={"password"}
+                            value={password}
+                            onChange={handlePasswordChange}
+                            placeholder={"Enter the password"}
+                        />
+                    </div>
+                    <button
+                        onClick={handleSubmit}
+                        className="bg-blue-500 hover:bg-blue-300 text-white p-3 my-3 rounded-md w-full"
+                    >
+                        Sign in
+                    </button>
+                    <span className="text-gray-700 font-medium mb-2">Or</span>
+
+                    <button
+                        onClick={handleGoogleLogin}
+                        className=" w-[400px] h-[40px] relative border bg-white hover:bg-blue-300 text-white p-3 my-1 rounded-md flex flex-row items-center justify-center"
+                    >
+                        <FcGoogle className="absolute left-3 top-2 self-start text-[25px] text-blue-500 " />
+                        <span className="text-gray-600 text-[15px] font-medium self-center hover:text-white">
+                            Continue with Google
+                        </span>
+                    </button>
+                    <FacebookLogin
+                        appId="1581871805725739"
+                        autoLoad={false}
+                        initParams={{
+                            version: "v10.0",
+                            xfbml: true,
+                        }}
+                        dialogParams={{
+                            response_type: "token",
+                        }}
+                        loginOptions={{
+                            return_scopes: true,
+                        }}
+                        onSuccess={onSuccess}
+                        onFail={onFail}
+                        onFailure={(err) => console.error('Facebook login error:', err)}
+                        onProfileSuccess={onProfileSuccess}
+                        className="w-[400px] h-[40px] relative border bg-white hover:bg-blue-300 text-white p-3 my-1 rounded-md flex flex-row items-center justify-center"
+                    >
+                        <FaFacebook className=" absolute left-3 top-2 self-start text-[25px] text-blue-500 " />{" "}
+                        <span className="text-gray-600 text-[15px] font-medium self-center hover:text-white">
+                            Continue with Facebook
+                        </span>
+                    </FacebookLogin>
+
+                    <div className="mt-5 flex flex-row justify-between items-center w-full my-1">
+                        <button
+                            onClick={() => navigate(`/${path.HOME}`)}
+                            className=" bg-blue-500 w-auto h-auto text-[12px] text-white rounded-[30px] p-3 hover:bg-gray-500 flex flex-row justify-center items-center gap-2"
+                        >
+                            <IoArrowBack /> Back to home
+                        </button>
+                        <span className="text-blue-500">
+                            Don't have an account?{" "}
+                            <span
+                                onClick={handleRegister}
+                                className="text-blue-500 font-bold hover:text-main-text"
+                            >
+                                Register
+                            </span>
+                        </span>
                     </div>
                 </div>
-            ) : (
-                <div className="w-full h-full relative flex justify-center items-center">
+                <div className="w-[400px] h-[550px] hidden md:flex justify-center items-center rounded-r-[20px] relative">
                     <img
                         src={require("../../assets/bg1.jpg")}
-                        alt=""
-                        className="w-full h-full object-cover"
+                        alt="login"
+                        className="w-full h-full object-cover rounded-r-[20px] absolute"
                     />
-                    <div className="flex p-[30px] absolute w-[500px] h-auto bg-white rounded-[15px] flex-col justify-start items-center ">
-                        <span className="font-main font-extrabold text-[35px] ">
-                            {isRegister ? "Register" : "Login"}
-                        </span>
-
-                        {isRegister && (
-                            <form onSubmit={registerValidation.handleSubmit}>
-                                <div className="flex flex-row justify-between items-center w-full my-1 gap-3">
-                                    <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                        <span className="w-full font-main text-[15px]">
-                                            First name
-                                        </span>
-                                        <InputField
-                                            name="firstName"
-                                            type={"text"}
-                                            value={
-                                                registerValidation.values
-                                                    .firstName
-                                            }
-                                            onChange={
-                                                registerValidation.handleChange
-                                            }
-                                            placeholder={"Enter first name"}
-                                        />
-                                    </div>
-                                    <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                        <span className="w-full font-main text-[15px]">
-                                            Last name
-                                        </span>
-                                        <InputField
-                                            name="lastName"
-                                            type={"text"}
-                                            value={
-                                                registerValidation.values
-                                                    .lastName
-                                            }
-                                            onChange={
-                                                registerValidation.handleChange
-                                            }
-                                            placeholder={"Enter last name"}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                    <span className="w-full font-main text-[15px]">
-                                        Phone number
-                                    </span>
-                                    <InputField
-                                        name="phone"
-                                        type={"text"}
-                                        value={registerValidation.values.phone}
-                                        onChange={
-                                            registerValidation.handleChange
-                                        }
-                                        placeholder={"Enter the phone number"}
-                                    />
-                                </div>
-                                <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                    <span className="w-full font-main text-[15px]">
-                                        Email
-                                    </span>
-                                    <InputField
-                                        name="email"
-                                        type={"email"}
-                                        value={registerValidation.values.email}
-                                        onChange={
-                                            registerValidation.handleChange
-                                        }
-                                        placeholder={"Enter the email"}
-                                    />
-                                </div>
-                                <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                    <span className="w-full font-main text-[15px]">
-                                        Password
-                                    </span>
-                                    <InputField
-                                        name="password"
-                                        type={"password"}
-                                        value={
-                                            registerValidation.values.password
-                                        }
-                                        onChange={
-                                            registerValidation.handleChange
-                                        }
-                                        placeholder={"Enter the password"}
-                                    />
-                                </div>
-                                <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                    <span className="w-full font-main text-[15px]">
-                                        Confirm Password
-                                    </span>
-                                    <InputField
-                                        name="confirmPassword"
-                                        type={"password"}
-                                        value={
-                                            registerValidation.values
-                                                .confirmPassword
-                                        }
-                                        onChange={
-                                            registerValidation.handleChange
-                                        }
-                                        placeholder={
-                                            "Enter the confirm password"
-                                        }
-                                    />
-                                </div>
-
-                                <div className="my-2 w-full flex flex-col justify-start items-center text-[13px]">
-                                    {registerValidation.errors.firstName &&
-                                    registerValidation.touched.firstName ? (
-                                        <div className="w-full text-red-500">
-                                            *{" "}
-                                            {
-                                                registerValidation.errors
-                                                    .firstName
-                                            }
-                                        </div>
-                                    ) : null}
-                                    {registerValidation.errors.lastName &&
-                                    registerValidation.touched.lastName ? (
-                                        <div className="text-red-500 w-full">
-                                            *{" "}
-                                            {registerValidation.errors.lastName}
-                                        </div>
-                                    ) : null}
-                                    {registerValidation.errors.phone &&
-                                    registerValidation.touched.phone ? (
-                                        <div className="w-full text-red-500">
-                                            * {registerValidation.errors.phone}
-                                        </div>
-                                    ) : null}
-                                    {registerValidation.errors.email &&
-                                    registerValidation.touched.email ? (
-                                        <div className="text-red-500 w-full">
-                                            * {registerValidation.errors.email}
-                                        </div>
-                                    ) : null}
-                                    {registerValidation.errors.password &&
-                                    registerValidation.touched.password ? (
-                                        <div className="w-full text-red-500">
-                                            *{" "}
-                                            {registerValidation.errors.password}
-                                        </div>
-                                    ) : null}
-                                    {registerValidation.errors
-                                        .confirmPassword &&
-                                    registerValidation.touched
-                                        .confirmPassword ? (
-                                        <div className="text-red-500 w-full">
-                                            *{" "}
-                                            {
-                                                registerValidation.errors
-                                                    .confirmPassword
-                                            }
-                                        </div>
-                                    ) : null}
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    className="bg-blue-500 hover:bg-blue-300 text-white p-3 my-1 rounded-md w-full"
-                                >
-                                    Sign in
-                                </button>
-                                <div className="flex flex-row justify-between items-center w-full my-1">
-                                    <span className="text-blue-500">
-                                        Already have an account?{" "}
-                                        <span
-                                            onClick={handleSetIsRegister}
-                                            className="text-blue-500 font-bold hover:text-main-text"
-                                        >
-                                            Login
-                                        </span>
-                                    </span>
-                                </div>
-                                <div className="flex flex-row justify-between items-center w-full my-1">
-                                    <span
-                                        onClick={() =>
-                                            navigate(`/${path.HOME}`)
-                                        }
-                                        className="text-blue-500 hover:text-main-text flex flex-row justify-center items-center gap-2"
-                                    >
-                                        <IoArrowBack /> Back to home
-                                    </span>
-                                </div>
-                            </form>
-                        )}
-
-                        {!isRegister && (
-                            <>
-                                <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                    <span className="w-full font-main text-[15px]">
-                                        Email
-                                    </span>
-                                    <InputField
-                                        type={"email"}
-                                        value={email}
-                                        onChange={handleEmailChange}
-                                        placeholder={"Enter the email"}
-                                    />
-                                </div>
-                                <div className="w-full flex flex-col justify-start items-center my-1 gap-1">
-                                    <span className="w-full font-main text-[15px]">
-                                        Password
-                                    </span>
-                                    <InputField
-                                        type={"password"}
-                                        value={password}
-                                        onChange={handlePasswordChange}
-                                        placeholder={"Enter the password"}
-                                    />
-                                </div>
-                                <button
-                                    onClick={handleSubmit}
-                                    className="bg-blue-500 hover:bg-blue-300 text-white p-3 my-3 rounded-md w-full"
-                                >
-                                    Sign in
-                                </button>
-
-                                <div className="flex flex-row justify-between items-center w-full my-1">
-                                    <span
-                                        className="text-blue-500"
-                                        onClick={() =>
-                                            setIsForgotPassword(
-                                                !isForgotPassword
-                                            )
-                                        }
-                                    >
-                                        Forgot password?
-                                    </span>
-                                    <span className="text-blue-500">
-                                        Don't have an account?{" "}
-                                        <span
-                                            onClick={handleSetIsRegister}
-                                            className="text-blue-500 font-bold hover:text-main-text"
-                                        >
-                                            Register
-                                        </span>
-                                    </span>
-                                </div>
-                                <div className="flex flex-row justify-between items-center w-full my-1">
-                                    <span
-                                        onClick={() =>
-                                            navigate(`/${path.HOME}`)
-                                        }
-                                        className="text-blue-500 hover:text-main-text flex flex-row justify-center items-center gap-2"
-                                    >
-                                        <IoArrowBack /> Back to home
-                                    </span>
-                                </div>
-                            </>
-                        )}
+                    <div className=" text-[35px] flex flex-col font-extrabold font-main  text-white z-10">
+                        <span className="text-[60px]">HELLO,</span>
+                        <span>welcome back!</span>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
-};
-
-export default Login;
+}

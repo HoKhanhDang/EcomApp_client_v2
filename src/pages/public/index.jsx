@@ -9,3 +9,5 @@ export {default as ResetPassword} from '../private/ResetPassword';
 export {default as Bill} from '../member/Bill';
 export {default as Profile} from '../member/Profile';
 export {default as Search} from './Search';
+export {default as Register} from './Register';
+export {default as ForgotPassword} from './ForgotPassword';

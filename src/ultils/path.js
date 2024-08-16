@@ -1,8 +1,11 @@
-import { Bill } from "pages/public";
+import { REGISTER } from "redux-persist";
 
 const path = {
     HOME: '',
-    LOGIN: 'login/:register',
+    LOGIN: 'login',
+    REGISTER: 'register',
+    FORGOTPASSWORD: 'forgotPassword',
+    REGISTER_OAUTH: 'registerOAuth',
     PUBLIC: '/',
     BLOG: 'blog',
     CONTACT: 'contact',

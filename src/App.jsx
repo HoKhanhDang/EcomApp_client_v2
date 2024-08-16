@@ -11,6 +11,8 @@ import {
     Bill,
     Profile,
     Search,
+    Register,
+    ForgotPassword,
 } from "./pages/public";
 import path from "./ultils/path";
 
@@ -18,9 +20,11 @@ import { useDispatch } from "react-redux";
 import { fetchCategory } from "./redux/asyncActions";
 import { useEffect, useState, memo } from "react";
 //components
+
 import MoveToTop from "./components/commons/move-to-top";
 import TopNavigation from "./components/commons/top-navigation";
 import Cart from "pages/member/Cart";
+import RegisterOAuth from "pages/private/RegisterOAuth";
 //api
 import { apiImpressions } from "apis/userApi";
 
@@ -30,6 +34,9 @@ const MainRoutes = memo(() => {
             <Route path={path.BILL} element={<Bill />} />
             <Route path={path.HOME} element={<Home />} />
             <Route path={path.LOGIN} element={<Login />} />
+            <Route path={path.REGISTER} element={<Register />} />
+            <Route path={path.FORGOTPASSWORD} element={<ForgotPassword />} />
+            <Route path={path.REGISTER_OAUTH} element={<RegisterOAuth />} />
             <Route path={path.CONTACT} element={<Contact />} />
             <Route path={path.PRODUCT} element={<Product />} />
             <Route path={path.PRODUCT_DETAIL} element={<ProductDetail />} />

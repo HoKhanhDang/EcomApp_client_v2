@@ -10,33 +10,64 @@
         font-family: "Poppins";
     }
 }
-@-webkit-keyframes shadow-drop-2-lr{0%{-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-box-shadow:0 0 0 0 transparent,0 0 0 0 transparent;box-shadow:0 0 0 0 transparent,0 0 0 0 transparent}100%{-webkit-transform:translateZ(50px);transform:translateZ(50px);-webkit-box-shadow:-12px 0 20px -12px rgba(0,0,0,.35),12px 0 20px -12px rgba(0,0,0,.35);box-shadow:-12px 0 20px -12px rgba(0,0,0,.35),12px 0 20px -12px rgba(0,0,0,.35)}}@keyframes shadow-drop-2-lr{0%{-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-box-shadow:0 0 0 0 transparent,0 0 0 0 transparent;box-shadow:0 0 0 0 transparent,0 0 0 0 transparent}100%{-webkit-transform:translateZ(50px);transform:translateZ(50px);-webkit-box-shadow:-12px 0 20px -12px rgba(0,0,0,.35),12px 0 20px -12px rgba(0,0,0,.35);box-shadow:-12px 0 20px -12px rgba(0,0,0,.35),12px 0 20px -12px rgba(0,0,0,.35)}}
-.shadow-drop-2-lr{-webkit-animation:shadow-drop-2-lr .4s cubic-bezier(.25,.46,.45,.94) both;animation:shadow-drop-2-lr .4s cubic-bezier(.25,.46,.45,.94) both}
-
-
-.scrollCustom{
-    height: 100% !important;
-    width: 100% !important; 
+@-webkit-keyframes shadow-drop-2-lr {
+    0% {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+        box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+    }
+    100% {
+        -webkit-transform: translateZ(50px);
+        transform: translateZ(50px);
+        -webkit-box-shadow: -12px 0 20px -12px rgba(0, 0, 0, 0.35),
+            12px 0 20px -12px rgba(0, 0, 0, 0.35);
+        box-shadow: -12px 0 20px -12px rgba(0, 0, 0, 0.35),
+            12px 0 20px -12px rgba(0, 0, 0, 0.35);
+    }
 }
-.slick-slide > div > a{
+@keyframes shadow-drop-2-lr {
+    0% {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+        box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+    }
+    100% {
+        -webkit-transform: translateZ(50px);
+        transform: translateZ(50px);
+        -webkit-box-shadow: -12px 0 20px -12px rgba(0, 0, 0, 0.35),
+            12px 0 20px -12px rgba(0, 0, 0, 0.35);
+        box-shadow: -12px 0 20px -12px rgba(0, 0, 0, 0.35),
+            12px 0 20px -12px rgba(0, 0, 0, 0.35);
+    }
+}
+.shadow-drop-2-lr {
+    -webkit-animation: shadow-drop-2-lr 0.4s
+        cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    animation: shadow-drop-2-lr 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.scrollCustom {
+    height: 100% !important;
+    width: 100% !important;
+}
+.slick-slide > div > a {
     padding: 2px;
 }
-
 
 button.slick-prev::before {
     content: "\276E";
     font-size: 50px;
     color: #ee3131 !important;
-
 }
 button.slick-next::before {
     content: "\276F";
     color: #ee3131 !important;
     font-size: 50px;
-  
 }
-.slick-prev:hover{
-    height: 70px  !important ;
+.slick-prev:hover {
+    height: 70px !important ;
     width: 70px !important;
     z-index: 20 !important;
     background-color: whitesmoke !important;
@@ -44,19 +75,18 @@ button.slick-next::before {
     top: 40% !important;
     left: 0 !important;
 }
-.slick-prev{
-    height: 70px  !important ;
+.slick-prev {
+    height: 70px !important ;
     width: 70px !important;
     z-index: 20 !important;
     background-color: transparent !important;
     opacity: 0.3 !important;
     top: 40% !important;
     left: 0 !important;
-
 }
 
-.slick-next:hover{
-    height: 70px  !important ;
+.slick-next:hover {
+    height: 70px !important ;
     width: 70px !important;
     z-index: 20 !important;
     background-color: whitesmoke !important;
@@ -64,8 +94,8 @@ button.slick-next::before {
     top: 40% !important;
     right: 0 !important;
 }
-.slick-next{
-    height: 70px  !important ;
+.slick-next {
+    height: 70px !important ;
     width: 70px !important;
     z-index: 20 !important;
     background-color: transparent !important;
@@ -73,8 +103,6 @@ button.slick-next::before {
     top: 40% !important;
     right: 0 !important;
 }
-
-
 
 @-webkit-keyframes slide-out-top {
     0% {
@@ -194,7 +222,6 @@ button.slick-next::before {
         cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-
 .barCompleted {
     height: 20px;
     background: rgb(106, 27, 154);
@@ -204,4 +231,3 @@ button.slick-next::before {
     align-items: center;
     justify-content: flex-end;
 }
-  
