@@ -92,10 +92,10 @@ export default function RegisterOAuth() {
     return (
         <>
             {isLoading && (
-                <div className="w-screen h-screen z-50 bg-blue-200 flex justify-center items-center">
+                <div className="w-screen h-screen z-50 absolute bg-blue-200 flex justify-center items-center">
                     <LuLoader2
                         variant="soft"
-                        className="animate-spin text-30px"
+                        className="animate-spin text-[30px]"
                     />
                 </div>
             )}
