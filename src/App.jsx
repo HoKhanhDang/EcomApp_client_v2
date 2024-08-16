@@ -77,7 +77,7 @@ function App() {
     }, []);
     return (
         <div>
-            {yScroll < 173 && <TopNavigation class="slide-out-top z-50" />}
+            {yScroll < 173 && <TopNavigation class="slide-out-top z-40" />}
             <MainRoutes />
             {yScroll >= 800 && <MoveToTop />}
         </div>
