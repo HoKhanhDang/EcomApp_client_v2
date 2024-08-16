@@ -10,6 +10,7 @@ import path from "../../ultils/path";
 import InputField from "../../components/elements/input-field";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/joy/CircularProgress";
 
 export default function Register() {
     const dispatch = useDispatch();
@@ -105,7 +106,7 @@ export default function Register() {
         <>
             {isLoading && (
                 <div className="w-screen h-screen z-50 bg-blue-200 flex justify-center items-center">
-                    <CircularProgress variant="soft" className="text-30px" />
+                    <LuLoader2  variant="soft" className="animate-spin text-30px" />
                 </div>
             )}
             <div className="w-screen h-screen flex items-center justify-center">
