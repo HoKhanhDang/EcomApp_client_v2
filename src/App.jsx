@@ -20,13 +20,14 @@ import { useDispatch } from "react-redux";
 import { fetchCategory } from "./redux/asyncActions";
 import { useEffect, useState, memo } from "react";
 //components
-
 import MoveToTop from "./components/commons/move-to-top";
 import TopNavigation from "./components/commons/top-navigation";
 import Cart from "pages/member/Cart";
 import RegisterOAuth from "pages/private/RegisterOAuth";
 //api
 import { apiImpressions } from "apis/userApi";
+//
+import Client from "pages/public/ClientChat";
 
 const MainRoutes = memo(() => {
     return (
@@ -80,6 +81,7 @@ function App() {
             {yScroll < 173 && <TopNavigation class="slide-out-top z-40" />}
             <MainRoutes />
             {yScroll >= 800 && <MoveToTop />}
+            <Client />
         </div>
     );
 }

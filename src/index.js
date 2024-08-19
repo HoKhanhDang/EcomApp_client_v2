@@ -12,6 +12,11 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import { PersistGate } from "redux-persist/integration/react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+
+import { CometChat } from '@cometchat-pro/chat';
+import config from './config';
+CometChat.init(config.appID)
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <Router>
