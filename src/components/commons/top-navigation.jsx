@@ -84,7 +84,7 @@ export default function TopNavigation() {
                             </Link>
                             <span className="text-nav mx-[3px]">or</span>
                             <Link
-                                to={`/login/reg`}
+                                to={path.REGISTER}
                                 className="text-nav hover:text-main-100"
                             >
                                 Create an account
