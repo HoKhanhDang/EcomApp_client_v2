@@ -232,7 +232,6 @@ button.slick-next::before {
     justify-content: flex-end;
 }
 
-
 .message {
     overflow: hidden;
 }
@@ -258,7 +257,7 @@ button.slick-next::before {
 .rcw-picker-btn {
     display: none;
 }
-.rcw-sender{
+.rcw-sender {
     display: flex;
     justify-content: center;
     gap: 10px;
