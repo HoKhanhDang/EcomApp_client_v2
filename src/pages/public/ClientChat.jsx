@@ -11,6 +11,7 @@ import "react-chat-widget/lib/styles.css";
 
 const agentUID = config.agentUID;
 const CUSTOMER_MESSAGE_LISTENER_KEY = "client-listener";
+const serverURL = config.serverURL;
 const limit = 30;
 
 class Client extends Component {
@@ -44,7 +45,7 @@ class Client extends Component {
     // The functions used above
 
     fetchAuthToken = async (uid) => {
-        const response = await fetch(`/api/auth?uid=${uid}`);
+        const response = await fetch(`${serverURL}/api/auth?uid=${uid}`);
         const result = await response.json();
         return result;
     };
@@ -96,7 +97,7 @@ class Client extends Component {
     }
 
     createUser = async () => {
-        const response = await fetch(`/api/create`);
+        const response = await fetch(`${serverURL}/api/create`);
         const result = await response.json();
         return result;
     };
