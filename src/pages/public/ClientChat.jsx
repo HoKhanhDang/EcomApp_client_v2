@@ -51,6 +51,7 @@ class Client extends Component {
     };
 
     createMessageListener = () => {
+        console.log("Creating message listener..."); // Debugging statement
         CometChat.addMessageListener(
             CUSTOMER_MESSAGE_LISTENER_KEY,
             new CometChat.MessageListener({
