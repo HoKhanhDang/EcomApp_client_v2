@@ -20,13 +20,16 @@ class Client extends Component {
         addResponseMessage("Are you looking for anything in particular?");
 
         let uid = localStorage.getItem("cc-uid");
+        console.log("Retrieved UID from localStorage:", uid); // Debugging statement
 
         // check for uid, if exist then get auth token
         if (uid !== null) {
             this.fetchAuthToken(uid).then(
                 (result) => {
+                    console.log("auth token fetched", result);
                     // SDK login
                     CometChat.login(result).then((user) => {
+                        console.log("Login successfully:", { user });
                         // listen to incoming message and fetch previous messages
                         this.createMessageListener();
                         this.fetchPreviousMessages();
@@ -48,10 +51,12 @@ class Client extends Component {
     };
 
     createMessageListener = () => {
+        console.log("Creating message listener..."); // Debugging statement
         CometChat.addMessageListener(
             CUSTOMER_MESSAGE_LISTENER_KEY,
             new CometChat.MessageListener({
                 onTextMessageReceived: (message) => {
+                    console.log("Incoming Message Log", { message });
                     addResponseMessage(message.text);
                 },
             })
@@ -65,8 +70,10 @@ class Client extends Component {
             .build();
         messagesRequest.fetchPrevious().then(
             (messages) => {
+                console.log("Message list fetched:", messages);
                 // add messages to the widget chat bubbles
                 messages.forEach((message) => {
+                    console.log("Message Log", { message });
                     if (message.rawMessage.sender === agentUID) {
                         addResponseMessage(message.text);
                     } else {
@@ -97,6 +104,8 @@ class Client extends Component {
     };
 
     handleNewUserMessage = (newMessage) => {
+        console.log(`New message incoming! ${newMessage}`);
+
         const textMessage = new CometChat.TextMessage(
             agentUID,
             newMessage,
@@ -109,10 +118,13 @@ class Client extends Component {
             // no uid, create user
             this.createUser().then(
                 (result) => {
+                    console.log("auth token fetched", result);
                     localStorage.setItem("cc-uid", result.uid);
+                    console.log("Stored UID in localStorage:", result.uid); // Debugging statement
 
                     // do login
                     CometChat.login(result.authToken).then((user) => {
+                        console.log("Login successfully:", { user });
                         CometChat.sendMessage(textMessage).then(
                             (message) => {
                                 console.log(
