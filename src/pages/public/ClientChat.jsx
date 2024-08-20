@@ -28,7 +28,7 @@ class Client extends Component {
                 (result) => {
                     console.log("auth token fetched", result);
                     // SDK login
-                    CometChat.login(result.authToken).then((user) => {
+                    CometChat.login(result).then((user) => {
                         console.log("Login successfully:", { user });
                         // listen to incoming message and fetch previous messages
                         this.createMessageListener();
@@ -139,17 +139,7 @@ class Client extends Component {
                             }
                         );
                         // create listener
-                        CometChat.addMessageListener(
-                            CUSTOMER_MESSAGE_LISTENER_KEY,
-                            new CometChat.MessageListener({
-                                onTextMessageReceived: (message) => {
-                                    console.log("Incoming Message Log", {
-                                        message,
-                                    });
-                                    addResponseMessage(message.text);
-                                },
-                            })
-                        );
+                        this.createMessageListener();
                     });
                 },
                 (error) => {
